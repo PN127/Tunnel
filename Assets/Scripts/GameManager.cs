@@ -1,59 +1,74 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class GameManager : MonoBehaviour
+namespace Tunnel
 {
-    [SerializeField]
-    private GameObject Impediment;
-    [SerializeField, Range(10, 50)]
-    private int volume;
-    [SerializeField]
-    public List<Material> materials = new List<Material>(4);
-
-    private GameObject ligthCentery;
-    private bool up = true;
-
-    void Start()
+    public class GameManager : MonoBehaviour
     {
-        ligthCentery = GameObject.Find("PointLightCenter");
-        GenerationImpediments(Impediment);
-    }
+        [SerializeField]
+        private GameObject _impediment;
+        //[SerializeField]
+        //private GameObject _ball;
+        [SerializeField, Range(10, 50)]
+        private int _volume;
+        [SerializeField]
+        private List<Material> _materials = new List<Material>(4);
 
-    void Update()
-    {
-        if (up)
-            ligthCentery.transform.position += Vector3.up * Time.deltaTime * 4;
-        else
-            ligthCentery.transform.position += Vector3.down * Time.deltaTime * 4;
+        private GameObject _ligthCentery;
 
-        if (7.5 < ligthCentery.transform.position.y && ligthCentery.transform.position.y < 8)
-            up = false;
-        if (-8 < ligthCentery.transform.position.y && ligthCentery.transform.position.y < -7.5)
-            up = true;
+        private bool _up = true;
 
-    }
-
-    void GenerationImpediments(GameObject imped)
-    {
-        var pos = new Vector3();
-        var rot = new Quaternion();
-        int i = 0;
-
-        while (i < volume)
+        void Start()
         {
-            pos.y = Random.Range(-10, 10);
-            pos.x = Random.Range(-2, 2);
-            pos.z = Random.Range(-2, 2);
-
-            rot.x = Random.Range(0, 180);
-            rot.y = Random.Range(0, 180);
-            rot.z = Random.Range(0, 180);
-
-            var obj = Instantiate(imped, pos, rot, gameObject.transform);
-            obj.GetComponent<MeshRenderer>().material = materials[Random.Range(0, 4)];
-
-            i++;
+            _ligthCentery = GameObject.Find("PointLightCenter");
+            GenerationImpediments(_impediment);
         }
+
+        void Update()
+        {
+            LCMovement();
+
+        }
+
+        void GenerationImpediments(GameObject imped)
+        {
+            var pos = new Vector3();
+            var rot = new Quaternion();
+            int i = 0;
+
+            while (i < _volume)
+            {
+                pos.y = Random.Range(-10, 10);
+                pos.x = Random.Range(-2, 2);
+                pos.z = Random.Range(-2, 2);
+
+                rot.x = Random.Range(0, 180);
+                rot.y = Random.Range(0, 180);
+                rot.z = Random.Range(0, 180);
+
+                var obj = Instantiate(imped, pos, rot, gameObject.transform);
+                obj.GetComponent<MeshRenderer>().material = _materials[Random.Range(0, 4)];
+
+                i++;
+            }
+        }
+
+        //ligth cemtery movement
+        void LCMovement()
+        {
+            if (_up)
+                _ligthCentery.transform.position += Vector3.up * Time.deltaTime * 4;
+            else
+                _ligthCentery.transform.position += Vector3.down * Time.deltaTime * 4;
+
+            if (7.5 < _ligthCentery.transform.position.y && _ligthCentery.transform.position.y < 8)
+                _up = false;
+            if (-8 < _ligthCentery.transform.position.y && _ligthCentery.transform.position.y < -7.5)
+                _up = true;
+        }
+
+        
     }
 }
