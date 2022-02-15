@@ -52,13 +52,13 @@ namespace Tunnel
         {
             Gizmos.color = Color.red;
             if(_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_target_pos, _pos);
+                Gizmos.DrawLine(_v2 + _target_pos, _v2 + _pos);
             Gizmos.color = Color.yellow;
             if (_target_pos != null && _normal != null)
                 Gizmos.DrawLine(_v2 + _target_pos, _v2 + _target_pos + _normal);
             Gizmos.color = Color.blue;
             if (_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_target_pos, _target_pos + _direction);
+                Gizmos.DrawLine(_v2 + _target_pos, _v2 + _target_pos + _direction);
             Gizmos.color = Color.green;
             if (_target_pos != null && _normal != null)
                 Gizmos.DrawLine(_target_pos, _contactPoint);
@@ -72,7 +72,8 @@ namespace Tunnel
             _pos = transform.position;
             _v1 = _target_pos - _pos;
             _v2 = _contactPoint - _target_pos;
-            _direction = Vector3.Reflect(_v1.normalized, _v2.normalized + _normal);
+            _direction = Vector3.Reflect(_v1.normalized, _normal);
+            _direction = _direction.normalized + _v2.normalized;
         }
 
         //private void OnTriggerEnter(Collider other)
