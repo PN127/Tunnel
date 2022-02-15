@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,12 @@ namespace Tunnel
     public class BallManager : MonoBehaviour
     {
         private Vector3 _direction;
+        private Vector3 _v1;
+        private Vector3 _v2;
+        private Vector3 _normal;
+        private Vector3 _pos;
+        private Vector3 _target_pos;
+        private Vector3 _contactPoint;
 
         [SerializeField, Range(1, 15)]
         private float _ballSpeed = 2;
@@ -31,17 +38,41 @@ namespace Tunnel
         {
             transform.parent = null;
 
-            transform.position += _direction * Time.deltaTime * _ballSpeed;
+            transform.position += Vector3.forward * Time.deltaTime * _ballSpeed;
         }
-        
-        //КОД РАБОТАЕТ НЕ ТАК! НУЖНА ДОРОБОТКА
+
+        private void OnDrawGizmos()
+        {
+            var camera = SceneView.currentDrawingSceneView.camera;
+
+            Draw();
+        }
+
+        void Draw()
+        {
+            Gizmos.color = Color.red;
+            if (_target_pos != null && _normal != null)
+                Gizmos.DrawLine(_target_pos, _pos);
+            Gizmos.color = Color.yellow;
+            if (_target_pos != null && _normal != null)
+                Gizmos.DrawLine(_v2 + _target_pos, _v2 + _target_pos + _normal);
+            Gizmos.color = Color.blue;
+            if (_target_pos != null && _normal != null)
+                Gizmos.DrawLine(_target_pos, _target_pos + _direction);
+            Gizmos.color = Color.green;
+            if (_target_pos != null && _normal != null)
+                Gizmos.DrawLine(_target_pos, _contactPoint);
+        }
+
         private void OnCollisionEnter(Collision collision)
         {
-            var _normal = collision.contacts[0].normal;
-            _direction = transform.position.normalized;
-            _direction = Vector3.Reflect(_direction, _normal);
-
-            Debug.Log("COLLISION" + collision.gameObject.name);
+            _normal = collision.contacts[0].normal;
+            _target_pos = collision.transform.position;
+            _contactPoint = collision.contacts[0].point;
+            _pos = transform.position;
+            _v1 = _target_pos - _pos;
+            _v2 = _contactPoint - _target_pos;
+            _direction = Vector3.Reflect(_v1.normalized, _normal);
         }
 
         //private void OnTriggerEnter(Collider other)
@@ -50,7 +81,7 @@ namespace Tunnel
         //    if(target.name.Contains("Gates"))
         //        UnityEditor.EditorApplication.isPaused = true;
 
-            
+
         //    var normal = target.transform.position;
         //    //var reflection = Vector3.Reflect(transform.position, other.con);
         //    //_direction = reflection.normalized;
