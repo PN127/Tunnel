@@ -38,7 +38,7 @@ namespace Tunnel
         {
             transform.parent = null;
 
-            transform.position += Vector3.forward * Time.deltaTime * _ballSpeed;
+            transform.position += transform.forward * Time.deltaTime * _ballSpeed;
         }
 
         private void OnDrawGizmos()
@@ -52,13 +52,13 @@ namespace Tunnel
         {
             Gizmos.color = Color.red;
             if (_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_target_pos, _pos);
+                Gizmos.DrawLine(_target_pos, _pos+_v2);
             Gizmos.color = Color.yellow;
             if (_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_v2 + _target_pos, _v2 + _target_pos + _normal);
+                Gizmos.DrawLine(_target_pos,_target_pos + _normal);
             Gizmos.color = Color.blue;
             if (_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_target_pos, _target_pos + _direction);
+                Gizmos.DrawLine(_target_pos,  _direction);
             Gizmos.color = Color.green;
             if (_target_pos != null && _normal != null)
                 Gizmos.DrawLine(_target_pos, _contactPoint);
@@ -66,13 +66,15 @@ namespace Tunnel
 
         private void OnCollisionEnter(Collision collision)
         {
-            _normal = collision.contacts[0].normal;
             _target_pos = collision.transform.position;
+            _normal = collision.contacts[0].normal;
             _contactPoint = collision.contacts[0].point;
-            _pos = transform.position;
-            _v1 = _target_pos - _pos;
             _v2 = _contactPoint - _target_pos;
-            _direction = Vector3.Reflect(_v1.normalized, _normal);
+            _pos = transform.position - _v2;
+            _v1 = _target_pos - _pos;
+
+            _direction = Vector3.Reflect(_v1, _normal);
+            transform.LookAt(_direction + transform.position);
         }
 
         //private void OnTriggerEnter(Collider other)
