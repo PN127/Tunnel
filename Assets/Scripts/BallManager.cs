@@ -8,22 +8,27 @@ namespace Tunnel
 {
     public class BallManager : MonoBehaviour
     {
-        private Vector3 _direction;
-        private Vector3 _v1;
-        private Vector3 _v2;
+        public delegate void EventVoid();
+        public event EventVoid EventGoal;
+
+        private GameManager _gm;
+
         private Vector3 _normal;
-        private Vector3 _pos;
-        private Vector3 _target_pos;
-        private Vector3 _contactPoint;
+        private Vector3 _ballBase;
 
         [SerializeField, Range(1, 15)]
-        private float _ballSpeed = 2;
+        private float _ballSpeed;
+        [SerializeField]
+        private float _ballSpeedStart = 2;
+        
 
-        private bool _release = false;
+        private bool _release = false;        
 
-        void Start()
+        private void Start()
         {
-            _direction = transform.forward;
+            _ballBase = transform.localPosition;
+            _gm = GameObject.Find("Walls").GetComponent<GameManager>();
+            _ballSpeed = _ballSpeedStart;
         }
 
         void Update()
@@ -37,58 +42,41 @@ namespace Tunnel
         void BallMove()
         {
             transform.parent = null;
-
+            
+            
             transform.position += transform.forward * Time.deltaTime * _ballSpeed;
-        }
-
-        private void OnDrawGizmos()
-        {
-            var camera = SceneView.currentDrawingSceneView.camera;
-
-            Draw();
-        }
-
-        void Draw()
-        {
-            Gizmos.color = Color.red;
-            if (_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_target_pos, _pos+_v2);
-            Gizmos.color = Color.yellow;
-            if (_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_target_pos,_target_pos + _normal);
-            Gizmos.color = Color.blue;
-            if (_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_target_pos,  _direction);
-            Gizmos.color = Color.green;
-            if (_target_pos != null && _normal != null)
-                Gizmos.DrawLine(_target_pos, _contactPoint);
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            _target_pos = collision.transform.position;
             _normal = collision.contacts[0].normal;
-            _contactPoint = collision.contacts[0].point;
-            _v2 = _contactPoint - _target_pos;
-            _pos = transform.position - _v2;
-            _v1 = _target_pos - _pos;
+            transform.forward = Vector3.Reflect(transform.forward, _normal);
 
-            _direction = Vector3.Reflect(_v1, _normal);
-            transform.LookAt(_direction + transform.position);
+            var obj = collision.gameObject;
+            if (obj.tag == "Impediment")
+            {
+                obj.SetActive(false);
+                _gm.ImpedimentList("remove", collision.transform);
+                _ballSpeed += 0.5f;
+                if (_gm.ImpedimentList("count") <= 0)
+                {
+                    _gm.CreateLevel(true);
+                    _ballSpeedStart += 0.5f;
+                    _ballSpeed = _ballSpeedStart;
+
+                }
+            }
+            if (obj.tag == "Finish")
+                EventGoal?.Invoke();
         }
 
-        //private void OnTriggerEnter(Collider other)
-        //{
-        //    var target = other.gameObject;
-        //    if(target.name.Contains("Gates"))
-        //        UnityEditor.EditorApplication.isPaused = true;
-
-
-        //    var normal = target.transform.position;
-        //    //var reflection = Vector3.Reflect(transform.position, other.con);
-        //    //_direction = reflection.normalized;
-        //    Debug.Log("Ola" + target.name + " " + _direction);
-        //}
+        public void BallRestart()
+        {
+            _release = false;
+            transform.parent = GameObject.Find("Player1").transform;
+            transform.localPosition = _ballBase;
+            transform.rotation = new Quaternion(0,0,0,0);
+        }
 
     }
 }
