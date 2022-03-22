@@ -55,15 +55,16 @@ namespace Tunnel
             var obj = collision.gameObject;
             if (obj.tag == "Impediment")
             {
-                obj.SetActive(false);
                 _gm.ImpedimentList("remove", collision.transform);
+                Destroy(obj);
+
                 _ballSpeed += 0.5f;
+
                 if (_gm.ImpedimentList("count") <= 0)
                 {
                     _gm.CreateLevel(true);
                     _ballSpeedStart += 0.5f;
                     _ballSpeed = _ballSpeedStart;
-
                 }
             }
             if (obj.tag == "Finish")
@@ -76,6 +77,7 @@ namespace Tunnel
             transform.parent = GameObject.Find("Player1").transform;
             transform.localPosition = _ballBase;
             transform.rotation = new Quaternion(0,0,0,0);
+            _ballSpeed = _ballSpeedStart;
         }
 
     }

@@ -15,17 +15,18 @@ namespace Tunnel
         private GameObject _ligthCentery;
         private GameObject _ball;
 
-        [SerializeField, Range(10, 50)]
-        private int _volume;
         [SerializeField]
         private int _health;
+        private int _volume;
         private int _lvl;
 
         private bool _up = true;
 
         [SerializeField]
         private List<Material> _materials = new List<Material>(4);
-        private List<Transform> _impedimentsList = new List<Transform>();
+        private List<Transform> _impedimentsList = new List<Transform>();        
+        [SerializeField]
+        private List<int> _volumeOnLvl = new List<int>(5);
 
         private BallManager _bm;
 
@@ -35,7 +36,6 @@ namespace Tunnel
             _ligthCentery = GameObject.Find("PointLightCenter");            
             _bm = _ball.GetComponent<BallManager>();
             _bm.EventGoal += () => Goal();
-            _health = 3;
             _lvl = 1;
             CreateLevel();
         }
@@ -96,26 +96,44 @@ namespace Tunnel
 
         public void CreateLevel(bool up = false)
         {
-            if(up)
+            if (up)
+            {
                 _lvl++;
+            }
+
             switch (_lvl)
             {
                 case 1:
-                    _volume = 1;
+                    if(_volumeOnLvl[0] <= 25)
+                        _volume = _volumeOnLvl[0];
+                    else
+                        _volume = 25;
                     break;
                 case 2:
-                    _volume = 10;
+                    if (_volumeOnLvl[1] <= 25)
+                        _volume = _volumeOnLvl[1];
+                    else
+                        _volume = 25;
                     break;
                 case 3:
-                    _volume = 15;
+                    if (_volumeOnLvl[2] <= 25)
+                        _volume = _volumeOnLvl[2];
+                    else
+                        _volume = 25;
                     break;
                 case 4:
-                    _volume = 20;
+                    if (_volumeOnLvl[3] <= 25)
+                        _volume = _volumeOnLvl[3];
+                    else
+                        _volume = 25;
                     break;
                 case 5:
-                    _volume = 25;
+                    if (_volumeOnLvl[4] <= 25)
+                        _volume = _volumeOnLvl[4];
+                    else
+                        _volume = 25;
                     break;
-                
+
             }
             GenerationImpediments(_impediment, _volume);
             if (_lvl == 1) return; 
@@ -137,6 +155,7 @@ namespace Tunnel
                 case "remove":
                     _impedimentsList.Remove(obj);
                     break;
+
                 case "count":
                     count = _impedimentsList.Count;
                     break;
