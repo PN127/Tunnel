@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
+using UnityEngine.UI;
+
 
 namespace Tunnel
 {
@@ -28,6 +30,11 @@ namespace Tunnel
         [SerializeField]
         private List<int> _volumeOnLvl = new List<int>(5);
 
+        [SerializeField]
+        private Text _showCountHealthPlayer1;
+        [SerializeField]
+        private Text _showCountHealthPlayer2;
+
         private BallManager _bm;
 
         void Start()
@@ -38,6 +45,8 @@ namespace Tunnel
             _bm.EventGoal += () => Goal();
             _lvl = 1;
             CreateLevel();
+            _showCountHealthPlayer1.text = $"<color=#E00101><b>{_health}</b></color>";
+            _showCountHealthPlayer2.text = $"<color=#E00101><b>{_health}</b></color>";
         }
 
         void Update()
@@ -87,11 +96,17 @@ namespace Tunnel
             if (_health > 1)
             {
                 _health--;
-                Debug.Log($"Осталось жизней: {_health} ");
+                _showCountHealthPlayer1.text = $"<color=#E00101><b>{_health}</b></color>";
+                _showCountHealthPlayer2.text = $"<color=#E00101><b>{_health}</b></color>";
                 _bm.BallRestart();
             }
             else
-                Restart();
+            {
+                _health--;
+                _showCountHealthPlayer1.text = $"<color=#E00101><b>{_health}</b></color>";
+                _showCountHealthPlayer2.text = $"<color=#E00101><b>{_health}</b></color>";
+                GameOver();
+            }
         }
 
         public void CreateLevel(bool up = false)
@@ -140,11 +155,19 @@ namespace Tunnel
             _bm.BallRestart();
         }
 
-        void Restart()
+        void GameOver()
         {
             _bm.BallRestart();
             Debug.Log("---GAME OVER---");
             UnityEditor.EditorApplication.isPaused = true;
+        }
+
+        public void Restart()
+        {
+            _bm.BallRestart();
+            ImpedimentList("restart");
+            _lvl = 1;
+            CreateLevel();
         }
 
         public int ImpedimentList(string text, Transform obj = null)
@@ -154,6 +177,17 @@ namespace Tunnel
             {
                 case "remove":
                     _impedimentsList.Remove(obj);
+                    break;
+
+                case "restart":
+                    int i = 0;
+                    int iC = _impedimentsList.Count - 1;
+                    while (i < iC)
+                    {
+                        Destroy(_impedimentsList[0].gameObject);
+                        _impedimentsList.Remove(_impedimentsList[0]);                        
+                        i++;
+                    }
                     break;
 
                 case "count":

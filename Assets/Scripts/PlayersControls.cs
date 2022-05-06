@@ -37,6 +37,15 @@ namespace Tunnel
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""1505373f-df1e-4d57-9097-85770a80ea1b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -94,6 +103,17 @@ namespace Tunnel
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b59ef978-a4cd-45c8-aa42-8a69d0f6451c"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -175,6 +195,7 @@ namespace Tunnel
             // Player1
             m_Player1 = asset.FindActionMap("Player1", throwIfNotFound: true);
             m_Player1_Movement = m_Player1.FindAction("Movement", throwIfNotFound: true);
+            m_Player1_Pause = m_Player1.FindAction("Pause", throwIfNotFound: true);
             // Player2
             m_Player2 = asset.FindActionMap("Player2", throwIfNotFound: true);
             m_Player2_Movement = m_Player2.FindAction("Movement", throwIfNotFound: true);
@@ -238,11 +259,13 @@ namespace Tunnel
         private readonly InputActionMap m_Player1;
         private IPlayer1Actions m_Player1ActionsCallbackInterface;
         private readonly InputAction m_Player1_Movement;
+        private readonly InputAction m_Player1_Pause;
         public struct Player1Actions
         {
             private @PlayersControls m_Wrapper;
             public Player1Actions(@PlayersControls wrapper) { m_Wrapper = wrapper; }
             public InputAction @Movement => m_Wrapper.m_Player1_Movement;
+            public InputAction @Pause => m_Wrapper.m_Player1_Pause;
             public InputActionMap Get() { return m_Wrapper.m_Player1; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -255,6 +278,9 @@ namespace Tunnel
                     @Movement.started -= m_Wrapper.m_Player1ActionsCallbackInterface.OnMovement;
                     @Movement.performed -= m_Wrapper.m_Player1ActionsCallbackInterface.OnMovement;
                     @Movement.canceled -= m_Wrapper.m_Player1ActionsCallbackInterface.OnMovement;
+                    @Pause.started -= m_Wrapper.m_Player1ActionsCallbackInterface.OnPause;
+                    @Pause.performed -= m_Wrapper.m_Player1ActionsCallbackInterface.OnPause;
+                    @Pause.canceled -= m_Wrapper.m_Player1ActionsCallbackInterface.OnPause;
                 }
                 m_Wrapper.m_Player1ActionsCallbackInterface = instance;
                 if (instance != null)
@@ -262,6 +288,9 @@ namespace Tunnel
                     @Movement.started += instance.OnMovement;
                     @Movement.performed += instance.OnMovement;
                     @Movement.canceled += instance.OnMovement;
+                    @Pause.started += instance.OnPause;
+                    @Pause.performed += instance.OnPause;
+                    @Pause.canceled += instance.OnPause;
                 }
             }
         }
@@ -302,6 +331,7 @@ namespace Tunnel
         public interface IPlayer1Actions
         {
             void OnMovement(InputAction.CallbackContext context);
+            void OnPause(InputAction.CallbackContext context);
         }
         public interface IPlayer2Actions
         {
